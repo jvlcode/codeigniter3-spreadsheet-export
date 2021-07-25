@@ -19,8 +19,25 @@
 
 		public function data(){
 			$users = $this->user_model->getUsers();
+			$spreadsheet = new Spreadsheet();
+			$sheet= $spreadsheet->getActiveSheet();
+			$sheet->setCellValue('A1','Name');
+			$sheet->setCellValue('B1','Email');
+			$sheet->setCellValue('C1','Phone');
+			$sheet->getStyle('A1:C1')->getFont()->setBold(true);
+			$row=2;
 			if(count($users)>0){
-
+				foreach($users as $user){
+					$sheet->setCellValue('A'.$row,$user->name);
+					$sheet->setCellValue('B'.$row,$user->email);
+					$sheet->setCellValue('C'.$row,$user->phone);
+				}	
+				$writer = new Xlsx($spreadsheet);
+				$filename = 'users_data';
+				header('Content-type:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+				header('Content-Disposition:attachment;filename='.$filename.'.xlsx;');
+				header('Cache-Control:max-age-0;');
+				$writer->save('php://output');
 			}else{
 				echo 'No data to export';
 			}
